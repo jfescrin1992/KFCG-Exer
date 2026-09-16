@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: kfcg-exerfit
+    runtime: node
+    plan: free
+    buildCommand: npm run build
+    startCommand: npm start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: JWT_SECRET
+        generateValue: true
+      - key: GEMINI_API_KEY
+        sync: false
+      - key: DATABASE_URL
+        fromDatabase:
+          name: exerfit-postgres
+          property: connectionString
+
+databases:
+  - name: exerfit-postgres
+    plan: free
+    databaseName: exerfit_db
+    user: exerfit_user

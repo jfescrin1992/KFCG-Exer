@@ -1,0 +1,31 @@
+{
+  "collections": {
+    "users": {
+      "description": "User profiles for students and teachers",
+      "fields": {
+        "uid": "string (unique firebase auth id)",
+        "name": "string",
+        "email": "string",
+        "role": "string ('student' | 'teacher')",
+        "grade": "string (optional, for students)",
+        "section": "string (optional, for students)",
+        "studentCode": "string (optional, for identification)",
+        "createdAt": "timestamp"
+      }
+    },
+    "assessments": {
+      "description": "Historical fitness assessment results",
+      "fields": {
+        "studentId": "string (references users.uid)",
+        "studentName": "string",
+        "grade": "string",
+        "section": "string",
+        "componentId": "string",
+        "rawResult": "number",
+        "score": "number",
+        "feedback": "string",
+        "timestamp": "timestamp"
+      }
+    }
+  }
+}

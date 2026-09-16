@@ -1,0 +1,6 @@
+{
+  "name": "STEM Fitness AI",
+  "description": "AI-powered physical fitness assessment for Grade 11 STEM students.",
+  "requestFramePermissions": ["camera"],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

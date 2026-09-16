@@ -1,0 +1,21 @@
+{
+  "name": "STEM Fitness AI",
+  "short_name": "STEM Fitness",
+  "description": "AI-Based Fitness Assessment Platform for Grade 11 STEM",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/src/assets/images/app_icon_pwa_1787570865639.jpg",
+      "sizes": "192x192",
+      "type": "image/jpeg"
+    },
+    {
+      "src": "/src/assets/images/app_icon_pwa_1787570865639.jpg",
+      "sizes": "512x512",
+      "type": "image/jpeg"
+    }
+  ]
+}
