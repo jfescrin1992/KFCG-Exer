@@ -232,14 +232,6 @@ export const FITNESS_COMPONENTS: FitnessComponent[] = [
     gameTitle: 'Reach the Target',
     instructions: ['Sit with legs straight', 'Reach forward slowly', 'Hold your furthest point']
   },
-  {
-    id: 'body-comp',
-    name: 'Body Composition',
-    category: 'Health-Related',
-    description: 'Proportion of fat and non-fat mass in your body.',
-    gameTitle: 'Know Your Body',
-    instructions: ['Stand straight', 'Face the camera', 'Follow posture guidelines']
-  },
   // Skill-Related
   {
     id: 'agility',

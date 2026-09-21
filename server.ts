@@ -55,7 +55,14 @@ async function startServer() {
   await initTablesIfNotExist();
 
   // Gemini Setup
-  const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY || '' });
+  const ai = new GoogleGenAI({ 
+    apiKey: process.env.GEMINI_API_KEY || '',
+    httpOptions: {
+      headers: {
+        'User-Agent': 'aistudio-build',
+      }
+    }
+  });
 
   // Backend Health & System Status Endpoint
   app.get('/api/health', (req, res) => {
@@ -825,7 +832,13 @@ async function startServer() {
 
       // Try primary model then fallback models if service is experiencing temporary spike
       let text = '';
-      const modelsToTry = ['gemini-3.8-flash', 'gemini-3.6-flash', 'gemini-flash-latest'];
+      const modelsToTry = [
+        'gemini-3.8-flash',
+        'gemini-3.5-flash',
+        'gemini-3.6-flash',
+        'gemini-3.1-flash-lite',
+        'gemini-flash-latest'
+      ];
       for (const modelName of modelsToTry) {
         try {
           const response = await ai.models.generateContent({

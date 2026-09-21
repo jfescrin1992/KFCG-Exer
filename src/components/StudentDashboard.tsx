@@ -15,10 +15,13 @@ import {
   Play,
   Users,
   Video,
-  Film
+  Film,
+  CheckCircle2,
+  X
 } from 'lucide-react';
 import { UserSession, AssessmentResult, FITNESS_COMPONENTS, PersonalGoal } from '../types';
 import { cn, calculateBMI, getBMICategory } from '../utils';
+import { estimatePercentileAndCategory } from './Assessment';
 import { Leaderboard } from './Leaderboard';
 import { PersonalGoalsWidget } from './PersonalGoalsWidget';
 import { FitnessLevelWidget } from './FitnessLevelWidget';
@@ -44,6 +47,7 @@ interface StudentDashboardProps {
   onStartAssessment: () => void;
   onViewResults: () => void;
   onViewHistory?: () => void;
+  onSaveBmi?: (result: AssessmentResult) => Promise<void>;
 }
 
 export const StudentDashboard: React.FC<StudentDashboardProps> = ({ 
@@ -52,7 +56,8 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
   sections,
   onStartAssessment, 
   onViewResults,
-  onViewHistory
+  onViewHistory,
+  onSaveBmi
 }) => {
   const [peerAverages, setPeerAverages] = useState<Array<{ componentId: string; avgScore: number; avgConsistency: number }>>([]);
   const [loadingPeers, setLoadingPeers] = useState(true);
@@ -60,6 +65,71 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
   const [loadingVideos, setLoadingVideos] = useState(true);
   const [studentGoals, setStudentGoals] = useState<PersonalGoal[]>([]);
   const [dashboardView, setDashboardView] = useState<'classic' | 'game'>('game');
+  const [successToast, setSuccessToast] = useState<{ show: boolean; title: string; message: string } | null>(null);
+
+  // BMI Widget local states
+  const [localUseDirectBmi, setLocalUseDirectBmi] = useState(false);
+  const [localWeightInput, setLocalWeightInput] = useState(session?.weight || '60');
+  const [localHeightInput, setLocalHeightInput] = useState(session?.height || '170');
+  const [localAgeInput, setLocalAgeInput] = useState(session?.age || '16');
+  const [localGenderInput, setLocalGenderInput] = useState(session?.gender || 'Male');
+  const [localRefStandard, setLocalRefStandard] = useState('WHO'); // 'WHO' | 'CDC' | 'Adult'
+  const [localBmiInput, setLocalBmiInput] = useState('21.0');
+  const [isSavingBmi, setIsSavingBmi] = useState(false);
+
+  const localBmiValNumeric = localUseDirectBmi 
+    ? (parseFloat(localBmiInput) || 21.0) 
+    : (parseFloat(localWeightInput) / Math.pow(parseFloat(localHeightInput) / 100, 2));
+
+  const localInlineBmi = localUseDirectBmi 
+    ? (parseFloat(localBmiInput) ? parseFloat(localBmiInput).toFixed(1) : '--') 
+    : (isNaN(localBmiValNumeric) ? '--' : localBmiValNumeric.toFixed(1));
+
+  const localInterpretation = React.useMemo(() => {
+    const ageNum = parseInt(localAgeInput) || 16;
+    const genderStr = localGenderInput || 'Male';
+    return estimatePercentileAndCategory(
+      isNaN(localBmiValNumeric) ? 21.0 : localBmiValNumeric, 
+      ageNum, 
+      genderStr, 
+      localRefStandard
+    );
+  }, [localBmiValNumeric, localAgeInput, localGenderInput, localRefStandard]);
+
+  const handleSaveBmiRecord = async () => {
+    if (onSaveBmi) {
+      const finalBmi = parseFloat(localInlineBmi);
+      if (isNaN(finalBmi)) {
+        alert('Please enter a valid BMI or weight/height values.');
+        return;
+      }
+      setIsSavingBmi(true);
+      try {
+        await onSaveBmi({
+          componentId: 'body-comp',
+          rawResult: `${finalBmi.toFixed(1)} kg/m²`,
+          score: 85, // Standard passing alignment/effort score
+          unit: 'kg/m²',
+          validReps: localUseDirectBmi ? finalBmi : (parseFloat(localWeightInput) || 0),
+          invalidReps: localUseDirectBmi ? 0 : (parseFloat(localHeightInput) || 0),
+          frequency: parseInt(localAgeInput),
+          consistency: localRefStandard === 'WHO' ? 1 : localRefStandard === 'CDC' ? 2 : 3,
+          duration: 30,
+          date: new Date().toISOString()
+        });
+        setSuccessToast({
+          show: true,
+          title: "BMI Saved Successfully!",
+          message: `Your Body Mass Index of ${finalBmi.toFixed(1)} kg/m² has been synchronized to your student profile.`
+        });
+        setTimeout(() => setSuccessToast(null), 5000);
+      } catch (err) {
+        console.error('Failed to save BMI:', err);
+      } finally {
+        setIsSavingBmi(false);
+      }
+    }
+  };
 
   useEffect(() => {
     const fetchPeerAverages = async () => {
@@ -208,6 +278,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
           goals={studentGoals}
           onStartAssessment={(compId) => onStartAssessment()}
           onViewLeaderboard={onViewResults}
+          onSaveBmi={onSaveBmi}
         />
       ) : (
         <div className="grid lg:grid-cols-3 gap-8">
@@ -577,6 +648,140 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
 
         {/* Sidebar Actions & History */}
         <div className="space-y-8">
+          {/* Dedicated Body Composition / BMI Calculator */}
+          <div className="bg-white rounded-[2rem] border border-neutral-100 p-6 space-y-6 shadow-xl shadow-blue-900/5">
+            <div>
+              <span className="text-blue-500 text-[10px] font-black uppercase tracking-widest">Separate Metric</span>
+              <h3 className="text-lg font-black text-neutral-900 mt-0.5 flex items-center gap-2">
+                <Activity size={18} className="text-blue-600 animate-pulse" /> Body Composition (BMI)
+              </h3>
+              <p className="text-xs text-neutral-400 mt-1">
+                Directly enter your Body Mass Index (BMI) or calculate it using weight and height.
+              </p>
+            </div>
+
+            {/* Input Toggle */}
+            <div className="grid grid-cols-2 gap-1 bg-neutral-100 p-1 rounded-xl">
+              <button
+                type="button"
+                onClick={() => setLocalUseDirectBmi(false)}
+                className={cn(
+                  "py-2 rounded-lg text-[11px] font-black transition-all",
+                  !localUseDirectBmi 
+                    ? "bg-white text-neutral-900 shadow-sm border border-neutral-200/50" 
+                    : "text-neutral-500 hover:text-neutral-900"
+                )}
+              >
+                Weight & Height
+              </button>
+              <button
+                type="button"
+                onClick={() => setLocalUseDirectBmi(true)}
+                className={cn(
+                  "py-2 rounded-lg text-[11px] font-black transition-all",
+                  localUseDirectBmi 
+                    ? "bg-white text-neutral-900 shadow-sm border border-neutral-200/50" 
+                    : "text-neutral-500 hover:text-neutral-900"
+                )}
+              >
+                Direct BMI Input
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              {localUseDirectBmi ? (
+                <div className="space-y-1">
+                  <label className="text-[10px] text-neutral-400 font-bold uppercase">BMI Value (kg/m²)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={localBmiInput}
+                    onChange={(e) => setLocalBmiInput(e.target.value)}
+                    className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-2 text-neutral-800 font-bold text-sm focus:outline-none focus:border-blue-500"
+                    placeholder="e.g. 21.5"
+                  />
+                </div>
+              ) : (
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-neutral-400 font-bold uppercase">Weight (kg)</label>
+                    <input
+                      type="number"
+                      value={localWeightInput}
+                      onChange={(e) => setLocalWeightInput(e.target.value)}
+                      className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-2 text-neutral-800 font-bold text-sm focus:outline-none focus:border-blue-500"
+                      placeholder="60"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-[10px] text-neutral-400 font-bold uppercase">Height (cm)</label>
+                    <input
+                      type="number"
+                      value={localHeightInput}
+                      onChange={(e) => setLocalHeightInput(e.target.value)}
+                      className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-2 text-neutral-800 font-bold text-sm focus:outline-none focus:border-blue-500"
+                      placeholder="170"
+                    />
+                  </div>
+                </div>
+              )}
+
+              <div className="grid grid-cols-2 gap-3">
+                <div className="space-y-1">
+                  <label className="text-[10px] text-neutral-400 font-bold uppercase">Age (years)</label>
+                  <input
+                    type="number"
+                    value={localAgeInput}
+                    onChange={(e) => setLocalAgeInput(e.target.value)}
+                    className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-2 text-neutral-800 font-bold text-sm focus:outline-none focus:border-blue-500"
+                  />
+                </div>
+                <div className="space-y-1">
+                  <label className="text-[10px] text-neutral-400 font-bold uppercase">Standard</label>
+                  <select
+                    value={localRefStandard}
+                    onChange={(e) => setLocalRefStandard(e.target.value)}
+                    className="w-full bg-neutral-50 border border-neutral-200 rounded-xl px-3 py-2 text-neutral-800 font-bold text-xs focus:outline-none focus:border-blue-500"
+                  >
+                    <option value="WHO">WHO</option>
+                    <option value="CDC">CDC</option>
+                    <option value="Adult">Adult</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Display calculated values */}
+              <div className="bg-neutral-50 p-4 rounded-2xl border border-neutral-100 flex justify-between items-center">
+                <div>
+                  <div className="text-[10px] text-neutral-400 font-black uppercase">Calculated BMI</div>
+                  <div className="text-xl font-black text-neutral-800">
+                    {localInlineBmi} <span className="text-[11px] font-normal text-neutral-400">kg/m²</span>
+                  </div>
+                </div>
+                {localInterpretation && (
+                  <div className={cn("px-2.5 py-1 text-[10px] font-black uppercase rounded-lg border", localInterpretation.bg)}>
+                    {localInterpretation.label}
+                  </div>
+                )}
+              </div>
+
+              {localInterpretation?.percentile && (
+                <div className="text-[11px] text-neutral-400 font-medium">
+                  Growth Percentile: <span className="font-black text-blue-600">{localInterpretation.percentile}th</span> ({localInterpretation.desc})
+                </div>
+              )}
+
+              <button
+                type="button"
+                onClick={handleSaveBmiRecord}
+                disabled={isSavingBmi}
+                className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white font-black text-xs rounded-xl tracking-wider uppercase transition-colors shadow-lg shadow-blue-500/20 active:scale-98 flex items-center justify-center gap-1.5"
+              >
+                {isSavingBmi ? "Saving..." : "Save BMI Record"}
+              </button>
+            </div>
+          </div>
+
           <Leaderboard 
             currentStudentId={session.studentCode} 
             sections={sections}
@@ -636,6 +841,25 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
           </div>
         </div>
       </div>
+      )}
+
+      {/* Floating Success Alert Toast */}
+      {successToast && (
+        <div className="fixed bottom-6 right-6 z-50 max-w-sm w-full bg-neutral-900 text-white border-2 border-emerald-500/30 rounded-2xl shadow-2xl p-4 flex gap-3 items-start pointer-events-auto animate-in fade-in slide-in-from-bottom-5 duration-300">
+          <div className="w-8 h-8 rounded-full bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-center text-emerald-400 shrink-0 mt-0.5">
+            <CheckCircle2 size={18} />
+          </div>
+          <div className="flex-1 space-y-1">
+            <h4 className="text-sm font-black tracking-tight text-white">{successToast.title}</h4>
+            <p className="text-xs text-neutral-300 leading-normal">{successToast.message}</p>
+          </div>
+          <button 
+            onClick={() => setSuccessToast(null)}
+            className="text-neutral-400 hover:text-white transition-colors p-1"
+          >
+            <X size={16} />
+          </button>
+        </div>
       )}
     </motion.div>
   );

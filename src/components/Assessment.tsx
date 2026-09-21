@@ -182,6 +182,8 @@ export const Assessment: React.FC<AssessmentProps> = ({ component, session, onCo
   const [ageInput, setAgeInput] = useState(session?.age || '16');
   const [genderInput, setGenderInput] = useState(session?.gender || 'Male');
   const [refStandard, setRefStandard] = useState('WHO'); // 'WHO' | 'CDC' | 'Adult'
+  const [useDirectBmi, setUseDirectBmi] = useState(false);
+  const [bmiInput, setBmiInput] = useState('21.0');
   const [speedMode, setSpeedMode] = useState(false); // false = Quick React, true = Fast Feet
   const [refJumpHeightInput, setRefJumpHeightInput] = useState('');
   const [refJumpVerified, setRefJumpVerified] = useState(false);
@@ -1716,11 +1718,15 @@ export const Assessment: React.FC<AssessmentProps> = ({ component, session, onCo
       const powerScore = isPower ? alignmentScore : 0;
       const reactionScore = isReaction ? alignmentScore : 0;
 
-      const h = parseFloat(heightInput) / 100;
-      const w = parseFloat(weightInput);
       let bmiVal = '--';
-      if (h > 0 && w > 0) {
-        bmiVal = (w / (h * h)).toFixed(1);
+      if (useDirectBmi) {
+        bmiVal = parseFloat(bmiInput || '0').toFixed(1);
+      } else {
+        const h = parseFloat(heightInput) / 100;
+        const w = parseFloat(weightInput);
+        if (h > 0 && w > 0) {
+          bmiVal = (w / (h * h)).toFixed(1);
+        }
       }
 
       onComplete({
@@ -1790,14 +1796,18 @@ export const Assessment: React.FC<AssessmentProps> = ({ component, session, onCo
       });
     }
     return () => clearInterval(timer);
-  }, [timeLeft, isPaused, component.id, reps, spm, consistency, starsCollected, invalidReps, alignmentScore, onComplete, weightInput, heightInput, ageInput, refStandard]);
+  }, [timeLeft, isPaused, component.id, reps, spm, consistency, starsCollected, invalidReps, alignmentScore, onComplete, weightInput, heightInput, ageInput, refStandard, useDirectBmi, bmiInput]);
 
   const handleBodyCompSubmit = () => {
-    const h = parseFloat(heightInput) / 100;
-    const w = parseFloat(weightInput);
     let bmiVal = '--';
-    if (h > 0 && w > 0) {
-      bmiVal = (w / (h * h)).toFixed(1);
+    if (useDirectBmi) {
+      bmiVal = parseFloat(bmiInput || '0').toFixed(1);
+    } else {
+      const h = parseFloat(heightInput) / 100;
+      const w = parseFloat(weightInput);
+      if (h > 0 && w > 0) {
+        bmiVal = (w / (h * h)).toFixed(1);
+      }
     }
     
     onComplete({
@@ -1805,15 +1815,17 @@ export const Assessment: React.FC<AssessmentProps> = ({ component, session, onCo
       rawResult: `${bmiVal} kg/m²`,
       score: alignmentScore,
       unit: 'kg/m²',
-      validReps: parseFloat(weightInput),
-      invalidReps: parseFloat(heightInput),
+      validReps: useDirectBmi ? parseFloat(bmiVal) : (parseFloat(weightInput) || 0),
+      invalidReps: useDirectBmi ? 0 : (parseFloat(heightInput) || 0),
       frequency: parseInt(ageInput),
       consistency: refStandard === 'WHO' ? 1 : refStandard === 'CDC' ? 2 : 3,
       duration: 30
     });
   };
 
-  const bmiValNumeric = parseFloat(weightInput) / Math.pow(parseFloat(heightInput) / 100, 2);
+  const bmiValNumeric = useDirectBmi 
+    ? (parseFloat(bmiInput) || 21.0) 
+    : (parseFloat(weightInput) / Math.pow(parseFloat(heightInput) / 100, 2));
   const ageNum = parseInt(ageInput) || 16;
   const genderStr = genderInput || 'Male';
   const studyInterpretation = estimatePercentileAndCategory(
@@ -1823,7 +1835,9 @@ export const Assessment: React.FC<AssessmentProps> = ({ component, session, onCo
     refStandard
   );
   
-  const inlineBMI = isNaN(bmiValNumeric) ? '--' : bmiValNumeric.toFixed(1);
+  const inlineBMI = useDirectBmi 
+    ? (parseFloat(bmiInput) ? parseFloat(bmiInput).toFixed(1) : '--') 
+    : (isNaN(bmiValNumeric) ? '--' : bmiValNumeric.toFixed(1));
 
   return (
     <div className="fixed inset-0 bg-neutral-950 z-50 flex flex-col md:flex-row overflow-hidden">
@@ -2323,39 +2337,86 @@ export const Assessment: React.FC<AssessmentProps> = ({ component, session, onCo
 
       {/* Camera View */}
       {component.id === 'body-comp' ? (
-        <div className="flex-grow flex flex-col xl:flex-row bg-neutral-950 overflow-y-auto">
+        <div className="flex-grow flex flex-col bg-neutral-950 overflow-y-auto items-center justify-center p-4 sm:p-8">
           {/* Interactive Calculator Panel */}
-          <div className="flex-1 p-8 space-y-6 text-white bg-neutral-900 border-r border-neutral-800">
+          <div className="w-full max-w-2xl p-6 sm:p-8 space-y-6 text-white bg-neutral-900 border border-neutral-800 rounded-3xl shadow-2xl">
             <div>
               <span className="text-blue-500 text-xs font-bold uppercase tracking-widest">Study Protocol Inputs</span>
               <h3 className="text-2xl font-black mt-1">Know Your Body</h3>
               <p className="text-sm text-neutral-400 mt-1">
-                Enter your actual weight and height measurements. Select the Growth Reference standard matching your study cohort.
+                Enter your body measurements or input your BMI directly. Select the Growth Reference standard matching your study cohort.
               </p>
+            </div>
+
+            {/* Input Mode Toggle */}
+            <div className="space-y-2">
+              <label className="text-xs text-neutral-400 font-bold uppercase tracking-wider">BMI Input Mode</label>
+              <div className="grid grid-cols-2 gap-2 bg-neutral-800 p-1.5 rounded-2xl border border-neutral-700">
+                <button
+                  type="button"
+                  onClick={() => setUseDirectBmi(false)}
+                  className={cn(
+                    "py-2.5 rounded-xl text-xs font-bold transition-all",
+                    !useDirectBmi 
+                      ? "bg-blue-600 text-white shadow-md shadow-blue-950/40" 
+                      : "text-neutral-400 hover:text-white"
+                  )}
+                >
+                  Weight & Height Calc
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setUseDirectBmi(true)}
+                  className={cn(
+                    "py-2.5 rounded-xl text-xs font-bold transition-all",
+                    useDirectBmi 
+                      ? "bg-blue-600 text-white shadow-md shadow-blue-950/40" 
+                      : "text-neutral-400 hover:text-white"
+                  )}
+                >
+                  Direct BMI Input
+                </button>
+              </div>
             </div>
 
             {/* Inputs Grid */}
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-1">
-                <label className="text-xs text-neutral-400 font-bold uppercase">Weight (kg)</label>
-                <input
-                  type="number"
-                  value={weightInput}
-                  onChange={(e) => setWeightInput(e.target.value)}
-                  className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-3 text-white font-bold text-lg focus:outline-none focus:border-blue-500"
-                  placeholder="e.g. 60"
-                />
-              </div>
-              <div className="space-y-1">
-                <label className="text-xs text-neutral-400 font-bold uppercase">Height (cm)</label>
-                <input
-                  type="number"
-                  value={heightInput}
-                  onChange={(e) => setHeightInput(e.target.value)}
-                  className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-3 text-white font-bold text-lg focus:outline-none focus:border-blue-500"
-                  placeholder="e.g. 170"
-                />
-              </div>
+              {useDirectBmi ? (
+                <div className="col-span-2 space-y-1">
+                  <label className="text-xs text-neutral-400 font-bold uppercase">Enter BMI (kg/m²)</label>
+                  <input
+                    type="number"
+                    step="0.1"
+                    value={bmiInput}
+                    onChange={(e) => setBmiInput(e.target.value)}
+                    className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-3 text-white font-bold text-lg focus:outline-none focus:border-blue-500"
+                    placeholder="e.g. 21.5"
+                  />
+                </div>
+              ) : (
+                <>
+                  <div className="space-y-1">
+                    <label className="text-xs text-neutral-400 font-bold uppercase">Weight (kg)</label>
+                    <input
+                      type="number"
+                      value={weightInput}
+                      onChange={(e) => setWeightInput(e.target.value)}
+                      className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-3 text-white font-bold text-lg focus:outline-none focus:border-blue-500"
+                      placeholder="e.g. 60"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <label className="text-xs text-neutral-400 font-bold uppercase">Height (cm)</label>
+                    <input
+                      type="number"
+                      value={heightInput}
+                      onChange={(e) => setHeightInput(e.target.value)}
+                      className="w-full bg-neutral-800 border border-neutral-700 rounded-xl px-4 py-3 text-white font-bold text-lg focus:outline-none focus:border-blue-500"
+                      placeholder="e.g. 170"
+                    />
+                  </div>
+                </>
+              )}
               <div className="space-y-1">
                 <label className="text-xs text-neutral-400 font-bold uppercase">Age (years)</label>
                 <input
@@ -2454,50 +2515,6 @@ export const Assessment: React.FC<AssessmentProps> = ({ component, session, onCo
             >
               VALIDATE & SAVE COMPOSITION STUDY
             </button>
-          </div>
-
-          {/* Stance Posture Check camera side */}
-          <div className="w-full xl:w-[480px] relative bg-black flex flex-col items-center justify-center p-6 border-l border-neutral-800">
-            <div className="text-center mb-4 space-y-1">
-              <h4 className="text-sm font-black text-white uppercase tracking-widest">Webcam Posture Guide</h4>
-              <p className="text-xs text-neutral-400">Stand straight and face camera to validate physical posture.</p>
-            </div>
-            <div className="w-full aspect-[4/3] relative rounded-2xl overflow-hidden border border-neutral-800 bg-neutral-900 shadow-2xl">
-              <Webcam
-                ref={webcamRef}
-                className="absolute inset-0 w-full h-full object-cover opacity-60"
-                mirrored
-                audio={false}
-                screenshotFormat="image/jpeg"
-                videoConstraints={{ facingMode: "user" }}
-                disablePictureInPicture={true}
-                forceScreenshotSourceSize={false}
-                imageSmoothing={true}
-                onUserMedia={() => {}}
-                onUserMediaError={() => {}}
-                screenshotQuality={0.92}
-              />
-              <canvas
-                ref={canvasRef}
-                className={cn("absolute inset-0 w-full h-full object-cover z-10 transition-opacity", isPaused ? "opacity-30" : "opacity-100")}
-              />
-              {/* Guidelines helper lines */}
-              <div className="absolute inset-0 z-20 pointer-events-none flex flex-col justify-around py-12 opacity-30">
-                <div className="border-t border-dashed border-blue-500 w-full" />
-                <div className="border-t border-dashed border-blue-500 w-full" />
-              </div>
-            </div>
-
-            {/* Realtime metrics */}
-            <div className="mt-4 bg-neutral-900 border border-neutral-800 p-4 rounded-xl w-full flex justify-between items-center">
-              <span className="text-xs text-neutral-400 font-bold uppercase">Stance Alignment</span>
-              <span className={cn(
-                "font-black text-sm",
-                alignmentScore > 85 ? "text-green-400" : "text-yellow-400"
-              )}>
-                {alignmentScore}% Perfect Stance
-              </span>
-            </div>
           </div>
         </div>
       ) : (

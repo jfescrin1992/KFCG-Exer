@@ -157,6 +157,24 @@ export default function App() {
     }
   };
 
+  const handleBmiComplete = async (result: AssessmentResult) => {
+    // Dynamically insert or update BMI record in local results state
+    const updatedResults = [...results.filter(r => r.componentId !== result.componentId), result];
+    setResults(updatedResults);
+
+    // Save to Database
+    if (userProfile && session) {
+      await saveAssessment(
+        userProfile.uid, 
+        session.studentName, 
+        session.grade, 
+        session.section, 
+        result
+      );
+      await loadStudentHistory();
+    }
+  };
+
   const generateFeedback = async (currentResults: AssessmentResult[]) => {
     if (!session) return;
     try {
@@ -259,6 +277,7 @@ export default function App() {
                 loadStudentHistory();
                 setPhase('history');
               }}
+              onSaveBmi={handleBmiComplete}
             />
           )}
 
