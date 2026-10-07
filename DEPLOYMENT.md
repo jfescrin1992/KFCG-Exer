@@ -1,6 +1,6 @@
-# 🚀 ExerFit Cloud Deployment Guide
+# 🚀 ExerCheck Cloud Deployment Guide
 
-This guide explains how to deploy KFCG ExerFit to free cloud hosting platforms.
+This guide explains how to deploy KFCG ExerCheck to free cloud hosting platforms.
 
 ---
 

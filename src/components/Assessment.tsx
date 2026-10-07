@@ -2894,7 +2894,7 @@ export const Assessment: React.FC<AssessmentProps> = ({ component, session, onCo
                   <Award size={18} className="text-yellow-400 shrink-0 mt-0.5" />
                   <div>
                     <strong className="text-white block mb-1">Defense Citation & Reproducibility:</strong>
-                    ExerFit applies 33 normalized spatial-temporal landmark nodes to an ST-GCN graph convolution layer coupled with a multi-head temporal self-attention transformer (T=30), guaranteeing real-time latency (under 25ms) on client devices with zero external video streaming.
+                    ExerCheck applies 33 normalized spatial-temporal landmark nodes to an ST-GCN graph convolution layer coupled with a multi-head temporal self-attention transformer (T=30), guaranteeing real-time latency (under 25ms) on client devices with zero external video streaming.
                   </div>
                 </div>
               </div>

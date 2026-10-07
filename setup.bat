@@ -1,7 +1,7 @@
 @echo off
-TITLE KFCG ExerFit Auto Setup
+TITLE KFCG ExerCheck Auto Setup
 echo ======================================================
-echo   KFCG EXERFIT - AUTOMATED LOCAL SETUP
+echo   KFCG EXERCHECK - AUTOMATED LOCAL SETUP
 echo ======================================================
 echo.
 
@@ -26,7 +26,7 @@ echo [2/3] Running Automated Environment & Database Provisioning...
 node scripts/setup.js
 
 echo.
-echo [3/3] Launching KFCG ExerFit Application...
+echo [3/3] Launching KFCG ExerCheck Application...
 echo The application will open on http://localhost:3000
 start http://localhost:3000
 npm run dev

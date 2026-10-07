@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
-# KFCG ExerFit Auto Setup Script for macOS & Linux
+# KFCG ExerCheck Auto Setup Script for macOS & Linux
 echo "======================================================"
-echo "  KFCG EXERFIT - AUTOMATED LOCAL & SERVER SETUP"
+echo "  KFCG EXERCHECK - AUTOMATED LOCAL & SERVER SETUP"
 echo "======================================================"
 echo ""
 

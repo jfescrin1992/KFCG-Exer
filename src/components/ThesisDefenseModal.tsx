@@ -47,7 +47,7 @@ export const ThesisDefenseModal: React.FC<ThesisDefenseModalProps> = ({ isOpen, 
                 <span className="text-xs text-blue-200/70 font-medium">Academic & Technical Reference</span>
               </div>
               <h2 className="text-xl sm:text-2xl font-black tracking-tight text-white mt-0.5">
-                KFCG ExerFit Theoretical Framework
+                KFCG ExerCheck Theoretical Framework
               </h2>
             </div>
           </div>
@@ -96,7 +96,7 @@ export const ThesisDefenseModal: React.FC<ThesisDefenseModalProps> = ({ isOpen, 
           {activeTab === 'architecture' && (
             <div className="space-y-6">
               <div className="bg-blue-50 border border-blue-100 rounded-2xl p-4 text-blue-900 text-xs sm:text-sm leading-relaxed">
-                <strong>Core Research Framework:</strong> To eliminate subjective teacher grading bias while maintaining student engagement, ExerFit decouples movement execution into three synchronized structural layers.
+                <strong>Core Research Framework:</strong> To eliminate subjective teacher grading bias while maintaining student engagement, ExerCheck decouples movement execution into three synchronized structural layers.
               </div>
 
               <div className="grid md:grid-cols-3 gap-6">
@@ -336,7 +336,7 @@ export const ThesisDefenseModal: React.FC<ThesisDefenseModalProps> = ({ isOpen, 
           {activeTab === 'standards' && (
             <div className="space-y-6">
               <div className="p-4 bg-amber-50 border border-amber-200 rounded-2xl text-amber-900 text-xs sm:text-sm">
-                <strong>Pedagogical Benchmark Alignment:</strong> ExerFit maps real-time telemetry into recognized academic assessment frameworks:
+                <strong>Pedagogical Benchmark Alignment:</strong> ExerCheck maps real-time telemetry into recognized academic assessment frameworks:
               </div>
 
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -428,7 +428,7 @@ export const ThesisDefenseModal: React.FC<ThesisDefenseModalProps> = ({ isOpen, 
 
         {/* Footer */}
         <div className="p-4 px-6 bg-neutral-100 border-t border-neutral-200 flex items-center justify-between shrink-0 text-xs text-neutral-500 font-bold">
-          <span>KFCG ExerFit • Physical Fitness Assessment System</span>
+          <span>KFCG ExerCheck • Physical Fitness Assessment System</span>
           <button
             onClick={onClose}
             className="px-5 py-2 bg-neutral-900 hover:bg-neutral-800 text-white rounded-xl font-bold transition-colors"

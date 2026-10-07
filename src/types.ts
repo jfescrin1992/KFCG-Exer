@@ -327,7 +327,7 @@ export const FITNESS_TIERS: FitnessTier[] = [
     badge: '🌱',
     color: 'from-slate-500 to-slate-700',
     accentColor: 'text-slate-600 bg-slate-100 border-slate-200',
-    perkDescription: 'Starting your fitness journey with ExerFit AI.'
+    perkDescription: 'Starting your fitness journey with ExerCheck AI.'
   },
   {
     level: 2,

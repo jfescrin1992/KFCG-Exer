@@ -187,7 +187,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ sections, te
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `ExerFit_All_Assessment_History_Logs_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `ExerCheck_All_Assessment_History_Logs_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -417,7 +417,7 @@ export const TeacherDashboard: React.FC<TeacherDashboardProps> = ({ sections, te
     const encodedUri = encodeURI(csvContent);
     const link = document.createElement('a');
     link.setAttribute('href', encodedUri);
-    link.setAttribute('download', `ExerFit_Student_Records_${new Date().toISOString().slice(0, 10)}.csv`);
+    link.setAttribute('download', `ExerCheck_Student_Records_${new Date().toISOString().slice(0, 10)}.csv`);
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);

@@ -1,6 +1,6 @@
-# 🏋️‍♂️ KFCG ExerFit - AI-Powered Physical Fitness Assessment System
+# 🏋️‍♂️ KFCG ExerCheck - AI-Powered Physical Fitness Assessment System
 
-KFCG ExerFit is a full-stack, AI-powered Physical Fitness Assessment and Learning Management system built with **React, TypeScript, Tailwind CSS, MediaPipe Pose Estimation, Google Gemini AI, Express.js, and PostgreSQL**.
+KFCG ExerCheck is a full-stack, AI-powered Physical Fitness Assessment and Learning Management system built with **React, TypeScript, Tailwind CSS, MediaPipe Pose Estimation, Google Gemini AI, Express.js, and PostgreSQL**.
 
 ---
 

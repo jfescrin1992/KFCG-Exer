@@ -1,11 +1,11 @@
-# 🎓 KFCG ExerFit: AI-Powered Gamified Physical Fitness Assessment System
+# 🎓 KFCG ExerCheck: AI-Powered Gamified Physical Fitness Assessment System
 ## Comprehensive Thesis Defense Master Manuscript & Technical Documentation
 
 ---
 
 ## 1. Executive Summary & Research Title
 
-* **Title**: *KFCG ExerFit: A 3-Layer Computer Vision-Based Gamified Physical Fitness Assessment System with Real-Time Kinematic Validation and DepEd/WHO Pedagogical Metric Standardization*
+* **Title**: *KFCG ExerCheck: A 3-Layer Computer Vision-Based Gamified Physical Fitness Assessment System with Real-Time Kinematic Validation and DepEd/WHO Pedagogical Metric Standardization*
 * **Domain**: Computer Vision, Human-Computer Interaction (HCI), Educational Technology, Sports Science & Physical Education.
 * **Core Technological Innovation**: Eliminating subjective manual grading in Physical Fitness Tests (PFT) through a non-invasive, browser-based, multi-stage pose estimation framework with real-time joint-angle tracking, 3D kinematic vector displacement, and age/gender-adjusted percentile classification.
 
@@ -20,8 +20,8 @@ In traditional physical education (PE) curricula (including Philippine Departmen
 3. **Logistical Burden & Lack of Real-time Form Correction**: Physical educators lack the tools to deliver immediate kinematic feedback to every student during the movement execution phase.
 4. **Data Fragmentation**: PFT records are traditionally transcribed on paper, causing delayed analysis, data loss, and difficulties in identifying pediatric students at cardiovascular or musculoskeletal risk.
 
-### 2.2 The Proposed Solution: KFCG ExerFit
-KFCG ExerFit resolves these issues through a **3-Layer Architecture**:
+### 2.2 The Proposed Solution: KFCG ExerCheck
+KFCG ExerCheck resolves these issues through a **3-Layer Architecture**:
 * **Layer 1 (The Exergame Motivation Layer)**: Translates standard fitness protocols into high-engagement interactive exercises (e.g., Starburst Metronome catching, Asteroid Dodging, Energy Bar Ascents, Jump Flight Velocity gauges).
 * **Layer 2 (The AI Computer Vision & Kinematics Layer)**: Uses on-device, privacy-preserving Google MediaPipe Pose (33 3D skeletal keypoints) running at 30–60 FPS with zero video upload to servers.
 * **Layer 3 (The Validated Metric & Clinical Standardization Layer)**: Normalizes raw keypoint telemetry into pediatric-corrected WHO growth percentiles, YMCA 3-Minute Step cardiovascular grades, Single-Leg Stance Test (SLST) vestibular ratings, and DepEd PFT performance bands.
@@ -144,7 +144,7 @@ $$\text{Balance Score} = \max\left(0, 100 - \frac{1}{T}\int_{0}^{T} \text{COG}_{
 > **Answer**: The system utilizes an audio metronome ($96\text{ BPM}$) with alternating lateral target nodes (Starburst Exergame). It tracks lower-extremity cycling speed, vertical knee lifts, and step cadence consistency across the full time domain to compute the cardiovascular endurance score.
 
 ### Q5: What makes this superior to a fitness mobile app?
-> **Answer**: Most commercial apps either count raw device accelerations (which cannot verify proper exercise posture) or provide unstandardized grading. KFCG ExerFit implements full kinematic angle checking tied directly to academic DepEd/WHO Physical Education standards, coupled with an integrated Teacher Faculty Dashboard for institutional gradebook management.
+> **Answer**: Most commercial apps either count raw device accelerations (which cannot verify proper exercise posture) or provide unstandardized grading. KFCG ExerCheck implements full kinematic angle checking tied directly to academic DepEd/WHO Physical Education standards, coupled with an integrated Teacher Faculty Dashboard for institutional gradebook management.
 
 ---
 

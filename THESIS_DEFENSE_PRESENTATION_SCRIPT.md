@@ -1,4 +1,4 @@
-# 🎤 KFCG ExerFit: Thesis Defense Presentation Script & Slide Guide
+# 🎤 KFCG ExerCheck: Thesis Defense Presentation Script & Slide Guide
 ## 15-Minute Panel Presentation Guide with Slide-by-Slide Talking Points
 
 ---
@@ -10,9 +10,9 @@
 ---
 
 ### Slide 1: Title & Introduction (1 Minute)
-* **Slide Title**: *KFCG ExerFit: AI-Powered Computer Vision Physical Fitness Assessment System with Real-Time Kinematic Validation and Educational Standardization*
+* **Slide Title**: *KFCG ExerCheck: AI-Powered Computer Vision Physical Fitness Assessment System with Real-Time Kinematic Validation and Educational Standardization*
 * **Presenter Script**:
-  > *"Good morning, esteemed members of the panel, research adviser, and colleagues. Today, we are proud to present our thesis project, **KFCG ExerFit**—an innovative, non-invasive, computer vision-based gamified assessment platform that transforms traditional Physical Education fitness testing through real-time skeletal tracking, kinematic validation, and automated pedagogical analysis."*
+  > *"Good morning, esteemed members of the panel, research adviser, and colleagues. Today, we are proud to present our thesis project, **KFCG ExerCheck**—an innovative, non-invasive, computer vision-based gamified assessment platform that transforms traditional Physical Education fitness testing through real-time skeletal tracking, kinematic validation, and automated pedagogical analysis."*
 
 ---
 
@@ -79,4 +79,4 @@
 
 ### Slide 8: Conclusions & Panel Defense (1 Minute)
 * **Presenter Script**:
-  > *"In conclusion, KFCG ExerFit demonstrates that computer vision and gamification can effectively eliminate human error in physical education, protect student data privacy, and deliver meaningful pedagogical insights at zero additional hardware cost. We now welcome questions and comments from the honorable panel members."*
+  > *"In conclusion, KFCG ExerCheck demonstrates that computer vision and gamification can effectively eliminate human error in physical education, protect student data privacy, and deliver meaningful pedagogical insights at zero additional hardware cost. We now welcome questions and comments from the honorable panel members."*

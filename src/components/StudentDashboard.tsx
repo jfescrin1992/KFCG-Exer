@@ -572,7 +572,7 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
             )}
           </div>
 
-          {/* How ExerFit AI Works: Clean, Friendly & Easy to Understand */}
+          {/* How ExerCheck AI Works: Clean, Friendly & Easy to Understand */}
           <div className="bg-gradient-to-br from-neutral-900 via-indigo-950 to-neutral-900 p-8 rounded-[2rem] border border-neutral-800 shadow-2xl relative overflow-hidden text-white mt-8">
             <div className="absolute top-0 right-0 p-8 opacity-[0.03] pointer-events-none">
               <Award size={220} />
@@ -583,9 +583,9 @@ export const StudentDashboard: React.FC<StudentDashboardProps> = ({
                 <span className="text-cyan-400 text-xs font-black uppercase tracking-widest flex items-center gap-1.5">
                   <Zap size={14} /> Easy Guide
                 </span>
-                <h2 className="text-2xl font-black text-white tracking-tight">How ExerFit AI Measures Your Fitness</h2>
+                <h2 className="text-2xl font-black text-white tracking-tight">How ExerCheck AI Measures Your Fitness</h2>
                 <p className="text-neutral-400 text-sm leading-relaxed">
-                  ExerFit uses smart camera tracking to measure your physical fitness safely and accurately in three simple steps:
+                  ExerCheck uses smart camera tracking to measure your physical fitness safely and accurately in three simple steps:
                 </p>
               </div>
 

@@ -216,7 +216,7 @@ export default function App() {
               <Activity size={24} />
             </div>
             <div>
-              <span className="font-black text-xl tracking-tight text-neutral-900">KFCG <span className="text-blue-600">ExerFit</span></span>
+              <span className="font-black text-xl tracking-tight text-neutral-900">KFCG <span className="text-blue-600">ExerCheck</span></span>
               <div className="text-[10px] uppercase font-bold tracking-[0.2em] text-neutral-400">AI Fitness Assessment</div>
             </div>
           </div>

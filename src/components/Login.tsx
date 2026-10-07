@@ -105,7 +105,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, sections }) => {
           <div className="w-16 h-16 bg-gradient-to-tr from-blue-700 to-indigo-600 rounded-2xl flex items-center justify-center text-white mx-auto mb-4 shadow-lg shadow-blue-500/30">
             {authMode === 'register' ? <GraduationCap size={32} /> : <Shield size={32} />}
           </div>
-          <h1 className="text-3xl font-black text-neutral-900 tracking-tight">KFCG ExerFit</h1>
+          <h1 className="text-3xl font-black text-neutral-900 tracking-tight">KFCG ExerCheck</h1>
           {authMode === 'register' ? (
             <div className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 bg-blue-50 border border-blue-200/80 rounded-full text-blue-700 text-xs font-black uppercase tracking-wider">
               <span>🎓</span> Student Registration Only

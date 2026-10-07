@@ -78,7 +78,7 @@ async function runSetup() {
 
       const geminiKey = (await askQuestion('\nOptional: Gemini API Key (press Enter to skip): ')).trim();
 
-      envContent = `# KFCG ExerFit Configuration
+      envContent = `# KFCG ExerCheck Configuration
 PORT=3000
 JWT_SECRET=${jwtSecret}
 

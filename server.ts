@@ -68,7 +68,7 @@ async function startServer() {
   app.get('/api/health', (req, res) => {
     res.json({
       status: 'ok',
-      service: 'KFCG ExerFit Backend API',
+      service: 'KFCG ExerCheck Backend API',
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
       environment: process.env.NODE_ENV || 'development',
@@ -79,7 +79,7 @@ async function startServer() {
   // API Catalog & Metadata Information
   app.get('/api/info', (req, res) => {
     res.json({
-      title: 'KFCG ExerFit Physical Fitness Assessment API',
+      title: 'KFCG ExerCheck Physical Fitness Assessment API',
       version: '1.0.0',
       description: 'Full-stack REST API for DepEd Physical Fitness Testing, Gamification, and Computer Vision Posture Assessment',
       endpoints: {
