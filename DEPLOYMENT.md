@@ -35,9 +35,12 @@ Render provides free hosting for full-stack Node.js web services and free Postgr
 
 1. Go to [Railway.app](https://railway.app/).
 2. Click **New Project** → **Deploy from GitHub repo**.
-3. Add a **PostgreSQL** service to your Railway canvas.
-4. Link `DATABASE_URL` from the PostgreSQL service to your app variables.
-5. Railway will automatically build and start the app via `package.json`.
+3. (Optional) Add a **PostgreSQL** service on Railway and link `DATABASE_URL` to your app variables. (The app features a zero-config in-memory fallback layer, so it runs immediately out of the box even before adding a database).
+4. In your web service **Variables**, add:
+   * `NODE_ENV`: `production`
+   * `JWT_SECRET`: (Random secure key, e.g. `exercheck_jwt_secret_token_123`)
+   * `GEMINI_API_KEY`: (Your Gemini API key from AI Studio)
+5. Railway will automatically build via `npm run build` and start via `npm start`. Both Nixpacks and Dockerfile builders are supported.
 
 ---
 

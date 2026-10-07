@@ -1,8 +1,14 @@
 import { eq, and, desc, sql } from 'drizzle-orm';
-import { db } from './index.ts';
+import { db, pool } from './index.ts';
 import { users, assessments, sections, personalGoals } from './schema.ts';
 import { AssessmentResult } from '../types.ts';
 import crypto from 'crypto';
+
+let isDatabaseOnline = false;
+
+export function isDatabaseActive() {
+  return isDatabaseOnline;
+}
 
 // Hash raw passwords securely with salt using native Node crypto
 export function hashPassword(password: string): string {
@@ -564,18 +570,20 @@ export async function registerLocalUser(
 
 // Fetch all registered teachers for student sign up dropdown
 export async function fetchPublicTeachersList() {
-  try {
-    const teacherRecords = await db.select().from(users).where(eq(users.role, 'teacher'));
-    if (teacherRecords && teacherRecords.length > 0) {
-      return teacherRecords.map(t => ({
-        uid: t.uid,
-        name: t.name,
-        section: t.section || '',
-        grade: t.grade || ''
-      }));
+  if (isDatabaseOnline) {
+    try {
+      const teacherRecords = await db.select().from(users).where(eq(users.role, 'teacher'));
+      if (teacherRecords && teacherRecords.length > 0) {
+        return teacherRecords.map(t => ({
+          uid: t.uid,
+          name: t.name,
+          section: t.section || '',
+          grade: t.grade || ''
+        }));
+      }
+    } catch (error) {
+      // Fallback to memory
     }
-  } catch (error) {
-    // Fallback to memory
   }
 
   return inMemoryUsers
@@ -593,18 +601,20 @@ export async function authenticateLocalUser(email: string, passwordRaw: string) 
   const hashedPassword = hashPassword(passwordRaw);
   const normalizedEmail = email.toLowerCase().trim();
 
-  try {
-    const result = await db.select().from(users).where(eq(users.email, normalizedEmail)).limit(1);
-    const user = result[0];
-    if (user) {
-      if (user.password !== hashedPassword) {
-        throw new Error('Incorrect password.');
+  if (isDatabaseOnline) {
+    try {
+      const result = await db.select().from(users).where(eq(users.email, normalizedEmail)).limit(1);
+      const user = result[0];
+      if (user) {
+        if (user.password !== hashedPassword) {
+          throw new Error('Incorrect password.');
+        }
+        return user;
       }
-      return user;
+    } catch (error: any) {
+      if (error.message === 'Incorrect password.') throw error;
+      // Database query failed, continue to in-memory check
     }
-  } catch (error: any) {
-    if (error.message === 'Incorrect password.') throw error;
-    // Database query failed, continue to in-memory check
   }
 
   // Fallback to in-memory store
@@ -696,11 +706,13 @@ export async function getOrCreateUser(
 
 // Get user profile by UID
 export async function getUserByUid(uid: string) {
-  try {
-    const result = await db.select().from(users).where(eq(users.uid, uid)).limit(1);
-    if (result[0]) return result[0];
-  } catch (error) {
-    // Database query failed, continue to in-memory check
+  if (isDatabaseOnline) {
+    try {
+      const result = await db.select().from(users).where(eq(users.uid, uid)).limit(1);
+      if (result[0]) return result[0];
+    } catch (error) {
+      // Database query failed, continue to in-memory check
+    }
   }
 
   const inMemUser = inMemoryUsers.find(u => u.uid === uid);
@@ -1619,13 +1631,15 @@ export async function createNewSection(name: string) {
 
 // Get all sections
 export async function fetchAllSections() {
-  try {
-    const result = await db.select().from(sections);
-    if (result && result.length > 0) {
-      return result.map(s => s.name);
+  if (isDatabaseOnline) {
+    try {
+      const result = await db.select().from(sections);
+      if (result && result.length > 0) {
+        return result.map(s => s.name);
+      }
+    } catch (error) {
+      // Fallback to in-memory sections
     }
-  } catch (error) {
-    // Fallback to in-memory sections
   }
   return inMemorySections;
 }
@@ -1826,7 +1840,13 @@ export async function deleteUserByUid(uid: string) {
 // Automated table and schema initialization for both local and cloud databases
 export async function initTablesIfNotExist() {
   try {
-    const { pool } = await import('./index.ts');
+    // Quick test query to verify connection with a 3.5s timeout race
+    await Promise.race([
+      pool.query('SELECT 1'),
+      new Promise((_, reject) => setTimeout(() => reject(new Error('PostgreSQL connection timeout (3.5s)')), 3500))
+    ]);
+
+    isDatabaseOnline = true;
     
     // Create Users table
     await pool.query(`
@@ -1913,7 +1933,7 @@ export async function initTablesIfNotExist() {
       CREATE INDEX IF NOT EXISTS personal_goals_exercise_idx ON personal_goals(exercise_id);
     `);
 
-    console.log('✅ Database schema verified & tables initialized successfully.');
+    console.log('✅ PostgreSQL database schema verified & tables initialized successfully.');
 
     // Seed default sections
     await seedSectionsIfEmpty();
@@ -1930,14 +1950,14 @@ export async function initTablesIfNotExist() {
     // Seed sample personal goals if empty
     await seedPersonalGoalsIfEmpty();
 
-  } catch (error) {
-    console.log('ℹ️ Running with in-memory persistence layer.');
+  } catch (error: any) {
+    isDatabaseOnline = false;
+    console.log('ℹ️ Running with in-memory persistence layer (cloud zero-config resilient mode):', error?.message || error);
   }
 }
 
 export async function seedPersonalGoalsIfEmpty() {
   try {
-    const { pool } = await import('./index.ts');
     const check = await pool.query('SELECT COUNT(*) FROM personal_goals');
     if (parseInt(check.rows[0].count, 10) === 0) {
       for (const g of inMemoryGoals) {
@@ -1967,7 +1987,6 @@ export async function seedPersonalGoalsIfEmpty() {
 
 export async function seedUsersIfEmpty() {
   try {
-    const { pool } = await import('./index.ts');
     const check = await pool.query('SELECT COUNT(*) FROM users');
     if (parseInt(check.rows[0].count, 10) === 0) {
       for (const u of inMemoryUsers) {
@@ -1996,7 +2015,6 @@ export async function seedUsersIfEmpty() {
 
 export async function seedAssessmentsIfEmpty() {
   try {
-    const { pool } = await import('./index.ts');
     const check = await pool.query('SELECT COUNT(*) FROM assessments');
     if (parseInt(check.rows[0].count, 10) === 0) {
       for (const a of inMemoryAssessments) {
@@ -2025,7 +2043,6 @@ export async function seedAssessmentsIfEmpty() {
 
 export async function seedWarmupVideosIfEmpty() {
   try {
-    const { pool } = await import('./index.ts');
     const check = await pool.query('SELECT COUNT(*) FROM warmup_videos');
     if (parseInt(check.rows[0].count, 10) === 0) {
       await pool.query(`

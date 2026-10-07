@@ -37,7 +37,9 @@ export default function App() {
   const [historyList, setHistoryList] = useState<AssessmentResult[]>([]);
   const [activeComponentId, setActiveComponentId] = useState<string | null>(null);
   const [aiFeedback, setAiFeedback] = useState('');
-  const [sections, setSections] = useState<string[]>([]);
+  const [sections, setSections] = useState<string[]>([
+    'Section A', 'Section B', 'Section C', 'STEM 1', 'STEM 2', 'Newton', 'Einstein', 'Pascal'
+  ]);
   const [initializing, setInitializing] = useState(true);
   const [showThesisModal, setShowThesisModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
@@ -55,28 +57,47 @@ export default function App() {
   };
 
   useEffect(() => {
+    let isMounted = true;
+
+    // Hard safety timeout: Ensure user is never stuck on initialization spinner
+    const safetyTimeout = setTimeout(() => {
+      if (isMounted) {
+        setInitializing(false);
+      }
+    }, 2500);
+
     const checkAuthAndSections = async () => {
       try {
-        // Load class sections from PostgreSQL
-        const sectionsRes = await fetch('/api/sections');
-        if (sectionsRes.ok) {
-          const sectionData = await sectionsRes.json();
-          if (sectionData && sectionData.length > 0) {
-            setSections(sectionData);
-          }
-        }
+        // Asynchronously fetch class sections
+        fetch('/api/sections')
+          .then(res => res.ok ? res.json() : null)
+          .then(sectionData => {
+            if (isMounted && Array.isArray(sectionData) && sectionData.length > 0) {
+              setSections(sectionData);
+            }
+          })
+          .catch(err => console.warn('Class sections fetch notice:', err));
 
         const profile = await getCurrentUser();
-        if (profile) {
-          handleUserLogin(profile);
+        if (isMounted && profile) {
+          await handleUserLogin(profile);
         }
       } catch (error) {
         console.error('Initialization check error:', error);
       } finally {
-        setInitializing(false);
+        clearTimeout(safetyTimeout);
+        if (isMounted) {
+          setInitializing(false);
+        }
       }
     };
+
     checkAuthAndSections();
+
+    return () => {
+      isMounted = false;
+      clearTimeout(safetyTimeout);
+    };
   }, []);
 
   const handleUserLogin = async (profile: UserProfile) => {

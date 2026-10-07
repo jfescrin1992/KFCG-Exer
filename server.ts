@@ -1,6 +1,6 @@
 import express from 'express';
 import path from 'path';
-import { createServer as createViteServer } from 'vite';
+import fs from 'fs';
 import { GoogleGenAI } from '@google/genai';
 import dotenv from 'dotenv';
 import jwt from 'jsonwebtoken';
@@ -18,6 +18,7 @@ import {
   fetchAllSections, 
   seedSectionsIfEmpty,
   initTablesIfNotExist,
+  isDatabaseActive,
   getLeaderboardRankings,
   deleteUserByUid,
   getUserByUid,
@@ -71,8 +72,8 @@ async function startServer() {
       service: 'KFCG ExerCheck Backend API',
       timestamp: new Date().toISOString(),
       uptime: process.uptime(),
-      environment: process.env.NODE_ENV || 'development',
-      database: 'PostgreSQL / In-Memory Hybird active'
+      environment: process.env.NODE_ENV || 'production',
+      database: isDatabaseActive() ? 'PostgreSQL Database Active' : 'In-Memory Resilient Active'
     });
   });
 
@@ -973,18 +974,32 @@ async function startServer() {
     }
   });
 
-  // Vite middleware for development
-  if (process.env.NODE_ENV !== 'production') {
+  // Vite middleware for development vs static asset serving for production
+  const distDir = fs.existsSync(path.join(__dirname, 'index.html'))
+    ? __dirname
+    : fs.existsSync(path.join(process.cwd(), 'dist', 'index.html'))
+    ? path.join(process.cwd(), 'dist')
+    : path.join(__dirname, 'dist');
+
+  const hasDist = fs.existsSync(path.join(distDir, 'index.html'));
+  const isDev = process.env.NODE_ENV === 'development' || (!hasDist && process.env.NODE_ENV !== 'production');
+
+  if (isDev) {
+    const { createServer: createViteServer } = await import('vite');
     const vite = await createViteServer({
       server: { middlewareMode: true },
       appType: 'spa',
     });
     app.use(vite.middlewares);
   } else {
-    const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
+    // API 404 handler before catch-all SPA route
+    app.all('/api/*', (req, res) => {
+      res.status(404).json({ error: `API endpoint ${req.method} ${req.path} not found.` });
+    });
+
+    app.use(express.static(distDir));
     app.get('*', (req, res) => {
-      res.sendFile(path.join(distPath, 'index.html'));
+      res.sendFile(path.join(distDir, 'index.html'));
     });
   }
 

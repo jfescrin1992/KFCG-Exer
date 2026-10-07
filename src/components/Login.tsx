@@ -20,6 +20,8 @@ export const Login: React.FC<LoginProps> = ({ onLogin, sections }) => {
     { uid: 'demo-faculty-03', name: 'Dr. Elena Garcia' },
   ]);
 
+  const availableSections = sections && sections.length > 0 ? sections : ['Section A', 'Section B', 'Section C', 'STEM 1', 'STEM 2'];
+
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -27,8 +29,14 @@ export const Login: React.FC<LoginProps> = ({ onLogin, sections }) => {
     lrn: '',
     teacherName: 'Prof. Maria Santos',
     grade: '11',
-    section: sections[0] || 'Section A',
+    section: availableSections[0] || 'Section A',
   });
+
+  useEffect(() => {
+    if (sections && sections.length > 0 && !sections.includes(formData.section)) {
+      setFormData(prev => ({ ...prev, section: sections[0] }));
+    }
+  }, [sections]);
 
   useEffect(() => {
     fetchPublicTeachers().then(teachers => {
@@ -252,7 +260,7 @@ export const Login: React.FC<LoginProps> = ({ onLogin, sections }) => {
                     value={formData.section}
                     onChange={e => setFormData({...formData, section: e.target.value})}
                   >
-                    {sections.map((s, idx) => (
+                    {availableSections.map((s, idx) => (
                       <option key={`login-sec-opt-${s}-${idx}`} value={s}>{s}</option>
                     ))}
                   </select>
